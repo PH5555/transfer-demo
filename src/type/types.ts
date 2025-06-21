@@ -1,3 +1,5 @@
+import { AESCT } from "../common/crypto/aes";
+
 export class Network {
     readonly uid!: TokenUniqueID;
     networkId!: number
@@ -15,8 +17,21 @@ export class Network {
     earliestZkEventBlkNum?: number;
     startZkEventBlkNum?: number;
     latestZkTransferFeeHex?: string;
-    endPointList!: NetworkEndPointModel;
+    endPointList!: NetworkEndPointModel[];
     masked!: boolean;
+}
+
+export class Wallet {
+    readonly address!: string;
+    name!: string;
+    enaHex!: string;
+    pkOwn!: string;
+    pkEncJson!: string;
+    ctPrivateKey!: AESCT;
+    ctMnemonic!: AESCT;
+    ctSecretKey!: AESCT;
+    masked: boolean = false;
+    placeholderIconIndex!: number;
 }
 
 export class NetworkEndPointModel {
@@ -68,3 +83,75 @@ export const TokenType = {
     ERC_1155: 'ERC-1155',
 } as const;
 export type TokenType = (typeof TokenType)[keyof typeof TokenType];
+
+export type TransferAmounts = {
+    fromPublicAmount?: bigint;
+    fromPrivateAmount?: bigint;
+    fromUnSpentNote?: UnSpentWalletNoteItem;
+    totalInput: bigint,
+    toPublicAmount?: bigint;
+    toPrivateAmount?: bigint;
+    totalOutput: bigint,
+    remainingAmount: bigint;
+};
+
+export type UnSpentWalletNoteItem = {
+    dbKey: string,
+    dbTransfer: ZKTransfer,
+    amounts: ZKTransferAmountTy,
+    note: INote,
+    noteAmt: bigint,
+    uiNoteAmt: string,
+    noteAddress: string,
+    uiNoteAddress: string,
+}
+
+export class ZKTransfer {
+
+    readonly dbKey!: String;
+    networkUid!: TokenUniqueID;
+    blockNumber!: number;
+    blockDateTime!: number;
+    transactionIndex!: number;
+    transactionHash!: string;
+    tokenUid!: TokenUniqueID;
+    from!: string;
+    to!: string;
+    amountsJson!: string;
+    ercApproveTxHash!: string;
+
+    // extra filter/sort params
+    tokenName!: string;
+    tokenType!: TokenType;
+    hasToPrivateNote!: boolean;
+    hasFromPrivateNote!: boolean;
+    toPrivateNoteIsSpent!: boolean;
+}
+
+export type ZKTransferAmountTy = {
+    fromPublicAmount?: bigint;
+    fromPrivateAmount?: bigint;
+    fromNote?: { amount: bigint, note?: INote };
+    toPublicAmount?: bigint;
+    toPrivate?: { amount: bigint, note?: INote };
+    remainingAmount?: bigint;
+    zkFee?: bigint;
+    gasFee?: bigint;
+    gasUsed?: bigint;
+    gasPrice?: bigint;
+}
+
+export interface INote {
+
+    open: bigint;
+    tokenAddress: string;
+    tokenId: bigint;
+    amount: bigint;
+    addr: bigint;
+    commitment: bigint;
+    index: bigint;
+    isSpent: boolean;
+
+    toJson(): string;
+    isValid(): boolean;
+}
