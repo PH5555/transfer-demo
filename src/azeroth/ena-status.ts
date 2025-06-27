@@ -4,7 +4,7 @@ import { Constants, SetStatus } from '../common/types';
 import { getPrivateKey, getUserKey } from './wallet';
 import { SendContractTransactionResult } from '../web3';
 import { consoleLogGasEstimation } from '../web3/web3-extended-log';
-import { AuditKey } from './keys';
+import { AuditKey, UserKey } from './keys';
 import { addHexPrefix, toHex, toJson } from '../common/utilities';
 import Encryption from '../common/crypto/deprecated/encryption';
 import { EnaStatus, GetAllEnaStatusResult } from './types';
@@ -131,7 +131,6 @@ export async function registerEna(
     }
 }
 
-
 export async function getEnaIndexStatus(
     azerothWeb3: Web3Azeroth,
     ena: bigint,
@@ -246,10 +245,9 @@ type GetAllEnaStatusResolveFtn = {
 let getAllEnaStatusAwaiters: GetAllEnaStatusResolveFtn[] = [];
 
 export function getAllEnaStatus(
+    userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
-    secretsDecryptionKey: string,
-    localStore: LocalStore,
 ): Promise<GetAllEnaStatusResult> {
 
     const P = new Promise<GetAllEnaStatusResult>(
@@ -267,10 +265,9 @@ export function getAllEnaStatus(
         getAllEnaStatusIsRunning = true;
 
         getAllEnaStatusRun(
+            userKey,
             wallet,
-            network,
-            secretsDecryptionKey,
-            localStore,
+            network
         ).then(
             (result) => {
                 try { getAllEnaStatusAwaiters.forEach(({ resolve }) => resolve(result)) } catch (error) { }
@@ -302,10 +299,9 @@ export function getAllEnaStatus(
 }
 
 export async function getAllEnaStatusRun(
+    userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
-    secretsDecryptionKey: string,
-    localStore: LocalStore
 ): Promise<GetAllEnaStatusResult> {
 
     let result: GetAllEnaStatusResult = {
@@ -317,12 +313,10 @@ export async function getAllEnaStatusRun(
 
     consoleLog("getAllEnaStatus ... :", wallet.enaHex, network.networkName);
 
-    const userKey = await getUserKey(wallet, secretsDecryptionKey);
-
     const azerothWeb3 = new Web3Azeroth(network);
 
     try {
-        result.enaState = await checkEnaExist({
+        result.enaState = await checkEnaExist({ 
             wallet,
             network,
         });
@@ -345,8 +339,6 @@ export async function getAllEnaStatusRun(
 
     if (enaLen === undefined || enaLen <= 0) return result;
 
-    localStore.getModifier().updateWNMeta(wallet, network, { enaLength: enaLen });
-
     for (let enaIndex = 0; enaIndex < enaLen; enaIndex++) {
 
         let enaStatus;
@@ -358,24 +350,12 @@ export async function getAllEnaStatusRun(
 
         if (enaStatus) {
 
+            //TODO: 토큰 추가
             let token;
-            try {
-                token = await findToken({
-                    network,
-                    localStore,
-                    contractAddress: enaStatus.contractAddress,
-                    tokenID: enaStatus.tokenID,
-                    addToLocalStoreIfNotExist: true,
-                });
-            } catch (error) {
-                continue;
-            }
 
             if (token !== undefined) {
 
                 consoleLog("getAllEnaStatus ... : update enaIndex to localStore : ", token.tokenName, token.tokenUid, enaIndex);
-
-                localStore.getModifier().WNToken.update(wallet, token, { enaIndex: enaIndex });
 
                 result.enaList.push({
                     token: token,

@@ -6,7 +6,7 @@ import { generateZkTransferInput } from './snark-input/generateZkTransferInput';
 import { ITransferMetaAmount } from './interfaces';
 import { getPrivateKey, getUserKey } from './wallet';
 import { getAllEnaStatus, getEnaIndexStatus } from './ena-status';
-import { AuditKey, UPK } from './keys';
+import { AuditKey, UPK, UserKey } from './keys';
 import { SendContractTransactionResult } from '../web3';
 import { toJson, web3NumbersToBigInt, web3NumbersToNumber } from '../common/utilities';
 import { sCT } from '../common/crypto/deprecated/encryption';
@@ -66,8 +66,8 @@ async function zkTransfer(transfer: ZkTransferMeta, advanceProgress: Function,) 
 
 export async function tranfer(
     {
-        localStore,
-        secretsDecryptionKey,
+        ethPrivateKey,
+        userKey,
         network,
         wallet,
         token,
@@ -78,8 +78,8 @@ export async function tranfer(
         onSuccess,
         onFail
     }: {
-        localStore: LocalStore,
-        secretsDecryptionKey: string,
+        ethPrivateKey: string,
+        userKey: UserKey,
         network: Network,
         wallet: Wallet,
         token: Token,
@@ -121,8 +121,6 @@ export async function tranfer(
     const endPointList = network.endPointList.map(e => e);
     const zkAmounts = toTransferMetaAmount(amounts);
     const web3Azeroth = new Web3Azeroth(network);
-    const ethPrivateKey = await getPrivateKey(wallet, secretsDecryptionKey);
-    const userKey = await getUserKey(wallet, secretsDecryptionKey);
     let ercApproveTxHash = '';
     let transferMeta: ZkTransferMeta | undefined = undefined;
     let txResultData = {
@@ -333,7 +331,7 @@ export async function tranfer(
 
         try {
 
-            let enaIndex = localStore.getWNToken(wallet, token)?.enaIndex;
+            let enaIndex = 0;
             consoleDebugExtra(token.tokenName, " Ena Index =", enaIndex);
             const validEnaIndex = (idx: any) => ((idx !== undefined && idx !== null && idx >= 0));
 
@@ -400,10 +398,9 @@ export async function tranfer(
                 ) {
                     // ena status and localstore index mismatch , fetch all
                     const result = await getAllEnaStatus(
+                        userKey,
                         wallet,
                         network,
-                        secretsDecryptionKey,
-                        localStore
                     );
 
                     const ena = result.enaList.find(v => v.token.tokenUid === token.tokenUid);
@@ -544,50 +541,7 @@ export async function tranfer(
         }
 
     }
-
-    const zKTxDBList = localStore.getModifier().azeroth.addZkTransfer({
-        network,
-        mapList: [{
-            token,
-            cachedEventToRemove: undefined,
-            transfer: {
-                amounts: {
-                    fromPublicAmount: zkAmounts.fromPublicAmount,
-                    fromPrivateAmount: zkAmounts.fromPrivateAmount,
-                    fromNote: {
-                        amount: zkAmounts.fromNote ? zkAmounts.fromNote.amount : 0n,
-                        note: zkAmounts.fromNote
-                    },
-                    toPublicAmount: zkAmounts.toPublicAmount,
-                    toPrivate: { amount: zkAmounts.toPrivateAmount },
-                    remainingAmount: amounts.remainingAmount,
-                    zkFee: requireZkTransfer ? zkTxFee : undefined,
-                    gasUsed : txResultData.transactionGasUsed,
-                    gasPrice: txResultData.transactionGasPrice,
-                    gasFee: txResultData.transactionGasUsed * txResultData.transactionGasPrice,
-                },
-                blockNumber: txResultData.blockNumber,
-                blockDateTime: txResultData.blockDateTime,
-                transactionIndex: txResultData.transactionIndex,
-                transactionHash: txResultData.transactionHash,
-                from: wallet.address.toLowerCase(),
-                to: receiverAddr.toLowerCase(),
-                ercApproveTxHash,
-            }
-        }]
-    });
-
-    const zKTxDB = zKTxDBList.at(0);
-
-    consoleLog("zkTransfer Call Success : ",
-        ("\n" + ("-").repeat(40)),
-        "\nzKTransferTy :",
-        ("\n" + ("-").repeat(40)),
-        "\n", toJson(zKTxDB, 2),
-        ("\n" + ("-").repeat(40)),
-        ("\n" + ("-").repeat(40)),
-    );
-
+// TODO: 백엔드 DB 작업
     // update input note isSpent param
     try {
         if (amounts.fromUnSpentNote) {

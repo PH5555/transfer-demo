@@ -333,6 +333,7 @@ export function getZkTransferByTransactionHash(realm: Realm, network: Network, t
 export function setToPrivateNoteIsSpent(realm: Realm, dbKey: string): number {
 
     const record = getZkTransfer(realm, dbKey) as ZKTransfer;
+    // TODO: 여기부터 보기
 
     if (record && record.hasToPrivateNote) {
 
