@@ -1,5 +1,4 @@
 import Web3Azeroth from './web3-contract';
-import { getMnemonic, getPrivateKey } from './wallet';
 import { getZkTransferFee } from './transfer';
 import Note, { NoteError, isSpentNote } from './note';
 import {
@@ -25,8 +24,6 @@ import {
 export default {
     Web3Azeroth: Web3Azeroth,
     getZkTransferFee,
-    getPrivateKey,
-    getMnemonic,
     getRegisterEnaGasFee,
     checkEnaExist,
     registerEna,

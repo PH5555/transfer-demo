@@ -1,19 +1,13 @@
 import _ from 'lodash';
 import Web3Azeroth from './web3-contract';
 import { Constants, SetStatus } from '../common/types';
-import { getPrivateKey, getUserKey } from './wallet';
 import { SendContractTransactionResult } from '../web3';
 import { consoleLogGasEstimation } from '../web3/web3-extended-log';
 import { AuditKey, UserKey } from './keys';
 import { addHexPrefix, toHex, toJson } from '../common/utilities';
 import Encryption from '../common/crypto/deprecated/encryption';
 import { EnaStatus, GetAllEnaStatusResult } from './types';
-import {
-    LocalStore,
-    Network,
-    Wallet
-} from '../local-storage';
-import { findToken } from '../common/network';
+import { Network, Wallet } from '../type/types';
 
 export async function getAPK(network: Network): Promise<any> {
     const azerothWeb3 = new Web3Azeroth(network);
@@ -46,10 +40,12 @@ export async function checkEnaExist(
 
 export async function getRegisterEnaGasFee(
     {
+        userKeys,
         wallet,
         network,
         secretsDecryptionKey,
     }: {
+        userKeys: UserKey,
         wallet: Wallet,
         network: Network,
         secretsDecryptionKey: string,
@@ -59,8 +55,6 @@ export async function getRegisterEnaGasFee(
     try {
 
         const azerothWeb3 = new Web3Azeroth(network);
-
-        const userKeys = await getUserKey(wallet, secretsDecryptionKey);
 
         consoleLog('get registerUser gas fee ....');
 
@@ -85,10 +79,14 @@ export async function getRegisterEnaGasFee(
 // ENA 등록
 export async function registerEna(
     {
+        userEthPrivateKey,
+        userKeys,
         wallet,
         network,
         secretsDecryptionKey,
     }: {
+        userEthPrivateKey: string,
+        userKeys: UserKey,
         wallet: Wallet,
         network: Network,
         secretsDecryptionKey: string,
@@ -98,11 +96,6 @@ export async function registerEna(
     try {
 
         const azerothWeb3 = new Web3Azeroth(network);
-
-        // wallet private key를 secretsDecryptionKey로 복호화
-        const userEthPrivateKey = await getPrivateKey(wallet, secretsDecryptionKey);
-
-        const userKeys = await getUserKey(wallet, secretsDecryptionKey);
 
         consoleLog('registerEna ....');
 
@@ -203,6 +196,7 @@ export async function getEnaIndexStatus(
 
 
 export async function getAllEnaLength(
+    userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
     enaParam: { ena?: bigint, secretsDecryptionKey?: string }
@@ -216,7 +210,6 @@ export async function getAllEnaLength(
     if (enaParam.ena) {
         ena = enaParam.ena;
     } else if (enaParam.secretsDecryptionKey) {
-        const userKey = await getUserKey(wallet, enaParam.secretsDecryptionKey);
         ena = userKey.pk.ena
     } else {
         console.error(" Error @ getAllEnaLength  :  enaParam.ena =", enaParam.ena, " enaParam.secretsDecryptionKey =", enaParam.secretsDecryptionKey);
@@ -348,23 +341,23 @@ export async function getAllEnaStatusRun(
             continue;
         }
 
-        if (enaStatus) {
+        // if (enaStatus) {
 
-            //TODO: 토큰 추가
-            let token;
+        //     //TODO: 토큰 추가
+        //     let token;
 
-            if (token !== undefined) {
+        //     if (token !== undefined) {
 
-                consoleLog("getAllEnaStatus ... : update enaIndex to localStore : ", token.tokenName, token.tokenUid, enaIndex);
+        //         consoleLog("getAllEnaStatus ... : update enaIndex to localStore : ", token.tokenName, token.tokenUid, enaIndex);
 
-                result.enaList.push({
-                    token: token,
-                    balance: enaStatus.balance,
-                    enaIndex,
-                    enaStatus,
-                });
-            }
-        }
+        //         result.enaList.push({
+        //             token: token,
+        //             balance: enaStatus.balance,
+        //             enaIndex,
+        //             enaStatus,
+        //         });
+        //     }
+        // }
     }
 
     return result;

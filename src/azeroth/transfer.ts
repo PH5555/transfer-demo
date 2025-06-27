@@ -1,19 +1,16 @@
 import Web3Azeroth from './web3-contract';
-import { LocalStore} from '../local-storage';
 import { Token, TokenType } from '../web3/types';
 import { EnaStatus, ZkTransferMeta } from './types';
 import { generateZkTransferInput } from './snark-input/generateZkTransferInput';
 import { ITransferMetaAmount } from './interfaces';
-import { getPrivateKey, getUserKey } from './wallet';
 import { getAllEnaStatus, getEnaIndexStatus } from './ena-status';
 import { AuditKey, UPK, UserKey } from './keys';
 import { SendContractTransactionResult } from '../web3';
 import { toJson, web3NumbersToBigInt, web3NumbersToNumber } from '../common/utilities';
 import { sCT } from '../common/crypto/deprecated/encryption';
-import { isSpentNote } from './note';
 import { TransferAmounts } from '../common/types'; 
 import { sendErcApproval, sendTransfer } from '../web3/erc-utils';
-import { Network, Wallet, ZKTransfer } from '../type/types';
+import { Network, Wallet } from '../type/types';
 
 export async function getZkTransferFee(network: Network): Promise<bigint> {
     return await (new Web3Azeroth(network)).getZkTransferFee();
@@ -75,7 +72,6 @@ export async function tranfer(
         receiverAddr,
         zkTxFee,
         advanceProgress,
-        onSuccess,
         onFail
     }: {
         ethPrivateKey: string,
@@ -87,15 +83,6 @@ export async function tranfer(
         receiverAddr: string,
         zkTxFee: bigint,
         advanceProgress: Function,
-        onSuccess: (result: {
-            transferRecord: ZKTransfer,
-            zkTxFee: bigint | undefined,
-            requiredTransfer: {
-                requireZkTransfer: boolean,
-                requireOnlyPublicTransfer: boolean,
-                requireErcApprove: boolean
-            }
-        }) => void,
         onFail: (
             failType:
                 'ReceiverEnaUnregistered' |
@@ -541,34 +528,9 @@ export async function tranfer(
         }
 
     }
-// TODO: 백엔드 DB 작업
+    // TODO: 백엔드 DB 작업 블록 추가
+    // TODO: 백엔드 DB 작업 노트 소비
     // update input note isSpent param
-    try {
-        if (amounts.fromUnSpentNote) {
-            const note = amounts.fromUnSpentNote.note;
-            const txDBKey = amounts.fromUnSpentNote.dbKey;
-            const sk = userKey.sk;
-            if ((await isSpentNote(web3Azeroth, sk, note.commitment)) === true) {
-                localStore.getModifier().azeroth.setToPrivateNoteIsSpent(txDBKey);
-            }
-        }
-    } catch (error) { }
-
-    if (!zKTxDB) {
-        console.warn("zKTxDB === undefined");
-        onFail('Internal');
-        return;
-    }
-
-    onSuccess({
-        transferRecord: zKTxDB,
-        zkTxFee: requireZkTransfer ? zkTxFee : undefined,
-        requiredTransfer: {
-            requireZkTransfer,
-            requireOnlyPublicTransfer,
-            requireErcApprove
-        }
-    });
 }
 
 function toTransferMetaAmount(amounts: TransferAmounts): ITransferMetaAmount {

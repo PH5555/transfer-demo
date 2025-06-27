@@ -1,8 +1,9 @@
 import './App.css';
 import { ethers } from 'ethers';
 import { useState } from 'react';
-import { Network, Token, TokenType, TransferAmounts } from './type/types';
+import { Network, Token, TokenType, TransferAmounts, Wallet } from './type/types';
 import { tranfer } from './azeroth/transfer';
+import { UserKey } from './azeroth/keys';
 
 function App() {
   const [senderAddress, setSenderAddress] = useState('');
@@ -94,10 +95,10 @@ function App() {
       amount.remainingAmount = amount.totalInput - amount.totalOutput;
   }
 
-  const zktransfer = async() => {
+  const zktransfer = async(ethPrivateKey: string, userKey: UserKey, wallet: Wallet, receiverAddr: string, zkTxFee: bigint) => {
     tranfer({
-        localStore,
-        secretsDecryptionKey: secretsDecryptionKey as string,
+        ethPrivateKey,
+        userKey,
         network: hardhatNetwork as Network,
         wallet: wallet as Wallet,
         token: ethNativeToken as Token,
@@ -105,7 +106,6 @@ function App() {
         receiverAddr: receiverAddr as string,
         zkTxFee: zkTxFee ? zkTxFee : 0n,
         advanceProgress: () => {},
-        onSuccess: () => {},
         onFail: () => {}
     });
   }
@@ -129,43 +129,46 @@ function App() {
 
   return (
     <div className="App">
-      <h2>이더리움 전송</h2>
-      <div>보내는 사람 주소</div>
-      <input value={senderAddress} onChange={e => setSenderAddress(e.target.value)}/>
-      <div>보내는 사람 키</div>
-      <input value={senderKey} onChange={e => setSenderKey(e.target.value)}/>
-      <div>받는 사람 주소</div>
-      <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
-      <br/>
-      <input type='button' value={"전송"} onClick={transfer}/>
+      <div>
+        <h2>이더리움 전송</h2>
+        <div>보내는 사람 주소</div>
+        <input value={senderAddress} onChange={e => setSenderAddress(e.target.value)}/>
+        <div>보내는 사람 키</div>
+        <input value={senderKey} onChange={e => setSenderKey(e.target.value)}/>
+        <div>받는 사람 주소</div>
+        <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
+        <br/>
+        <input type='button' value={"전송"} onClick={transfer}/>
 
-      <h2>잔액 확인</h2>
-      <div>주소</div>
-      <input value={balanceAddress} onChange={e => setBalanceAddress(e.target.value)}/>
-      <input type='button' value={"확인"} onClick={getBalance}/>
+        <h2>잔액 확인</h2>
+        <div>주소</div>
+        <input value={balanceAddress} onChange={e => setBalanceAddress(e.target.value)}/>
+        <input type='button' value={"확인"} onClick={getBalance}/>
+      </div>
 
-      <h2>zktransfer</h2>
-      <div>보내는 사람 주소</div>
-      <input value={senderAddress} onChange={e => setSenderAddress(e.target.value)}/>
-      <div>보내는 사람 키</div>
-      <input value={senderKey} onChange={e => setSenderKey(e.target.value)}/>
-      <div>받는 사람 주소</div>
-      <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
+      <div>
+        <h2>zktransfer</h2>
+        <div>보내는 사람 주소</div>
+        <input value={senderAddress} onChange={e => setSenderAddress(e.target.value)}/>
+        <div>보내는 사람 키</div>
+        <input value={senderKey} onChange={e => setSenderKey(e.target.value)}/>
+        <div>받는 사람 주소</div>
+        <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
 
-      <div>fromPublicAmount</div>
-      <input name='fromPublicAmount' value={Number(amounts.fromPublicAmount)} onChange={handleAmountChange}/>
-      <div>fromPrivateAmount</div>
-      <input name='fromPrivateAmount' value={Number(amounts.fromPrivateAmount)} onChange={handleAmountChange}/>
-      <div>fromUnSpentNote</div>
-      <input name='fromUnSpentNote' value={Number(amounts.fromUnSpentNote)} onChange={handleAmountChange}/>
-      <div>toPublicAmount</div>
-      <input name='toPublicAmount' value={Number(amounts.toPublicAmount)} onChange={handleAmountChange}/>
-      <div>toPrivateAmount</div>
-      <input name='toPrivateAmount' value={Number(amounts.toPrivateAmount)} onChange={handleAmountChange}/>
+        <div>fromPublicAmount</div>
+        <input name='fromPublicAmount' value={Number(amounts.fromPublicAmount)} onChange={handleAmountChange}/>
+        <div>fromPrivateAmount</div>
+        <input name='fromPrivateAmount' value={Number(amounts.fromPrivateAmount)} onChange={handleAmountChange}/>
+        <div>fromUnSpentNote</div>
+        <input name='fromUnSpentNote' value={Number(amounts.fromUnSpentNote)} onChange={handleAmountChange}/>
+        <div>toPublicAmount</div>
+        <input name='toPublicAmount' value={Number(amounts.toPublicAmount)} onChange={handleAmountChange}/>
+        <div>toPrivateAmount</div>
+        <input name='toPrivateAmount' value={Number(amounts.toPrivateAmount)} onChange={handleAmountChange}/>
 
-      <br/>
-      <input type='button' value={"전송"} onClick={transfer}/>
-
+        <br/>
+        <input type='button' value={"전송"} onClick={transfer}/>
+      </div>
     </div>
   );
 }

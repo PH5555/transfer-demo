@@ -1,11 +1,11 @@
 import ABI from './web3-abi';
 import { Web3Extended } from '../web3';
-import { Network } from '../local-storage';
 import { UPK } from './keys';
 import { AffinePoint } from '../common/crypto/curve';
 import { ZkEventData, ZkTransferEvent } from './types';
 import { toJson, web3NumbersToNumber } from "../common/utilities";
 import { PastEventOptions } from "../web3/types";
+import { Network } from '../type/types';
 
 export default class Web3Azeroth extends Web3Extended {
 
@@ -128,7 +128,7 @@ export default class Web3Azeroth extends Web3Extended {
         try {
             return web3NumbersToNumber(length);
         } catch (error) {
-            0;
+            
         }
     }
 
