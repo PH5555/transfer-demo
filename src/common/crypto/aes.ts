@@ -1,4 +1,4 @@
-import Aes from 'react-native-aes-crypto';
+import CryptoJS from "crypto-js";
 
 export type AESCT = { cipher: string, iv: string }
 
@@ -11,8 +11,17 @@ export type AESCT = { cipher: string, iv: string }
  * @param length
  * @return {Promise<string>}
  */
-const generationKey = async (password: string, salt: string, cost: number, length: number) => {
-    return Aes.pbkdf2(password, salt, cost, length);
+const generationKey = async (
+  password: string,
+  salt: string,
+  iterations: number,
+  keySizeBytes: number
+): Promise<string> => {
+  const key = CryptoJS.PBKDF2(password, CryptoJS.enc.Hex.parse(salt), {
+    keySize: keySizeBytes / 4, // because keySize is in 32-bit words
+    iterations: iterations,
+  });
+  return CryptoJS.enc.Base64.stringify(key);
 };
 
 /**
@@ -21,14 +30,25 @@ const generationKey = async (password: string, salt: string, cost: number, lengt
  * @param key
  * @return {Promise<{cipher: *, iv: *}>}
  */
-const encryptData = async (text: string, key: string) => {
-    return Aes.randomKey(16).then(iv => {
-        return Aes.encrypt(text, key, iv, 'aes-256-cbc')
-            .then(cipher => ({
-                cipher,
-                iv,
-            }));
-    });
+const encryptData = async (
+  text: string,
+  base64Key: string
+) => {
+  // Random 16-byte IV
+  const ivWordArray = CryptoJS.lib.WordArray.random(16);
+
+  const keyWordArray = CryptoJS.enc.Base64.parse(base64Key);
+
+  const encrypted = CryptoJS.AES.encrypt(text, keyWordArray, {
+    iv: ivWordArray,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  return {
+    cipher: encrypted.ciphertext.toString(CryptoJS.enc.Base64),
+    iv: CryptoJS.enc.Base64.stringify(ivWordArray),
+  };
 };
 
 /**
@@ -37,13 +57,23 @@ const encryptData = async (text: string, key: string) => {
  * @param key
  * @return {Promise<string>}
  */
-const decryptData = async (encryptedData: AESCT, key: string) => {
-    return Aes.decrypt(
-        encryptedData.cipher,
-        key,
-        encryptedData.iv,
-        'aes-256-cbc',
-    );
+const decryptData = async (
+  encryptedData: AESCT,
+  base64Key: string
+): Promise<string> => {
+  const keyWordArray = CryptoJS.enc.Base64.parse(base64Key);
+  const ivWordArray = CryptoJS.enc.Base64.parse(encryptedData.iv);
+  const cipherParams = CryptoJS.lib.CipherParams.create({
+    ciphertext: CryptoJS.enc.Base64.parse(encryptedData.cipher),
+  });
+
+  const decrypted = CryptoJS.AES.decrypt(cipherParams, keyWordArray, {
+    iv: ivWordArray,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  return decrypted.toString(CryptoJS.enc.Utf8);
 };
 
 export default {

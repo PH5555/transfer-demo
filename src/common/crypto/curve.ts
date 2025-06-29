@@ -1,9 +1,8 @@
-import { randomBytes } from 'react-native-randombytes';
 import math from '../utilities/math';
 import { CurveParamType, ECType, SetupCurveParam } from './curveParam';
 import { toHex, toJson } from '../utilities';
 import { AffinePoint as AffinePointInterface } from './interfaces';
-
+import CryptoJS from "crypto-js";
 
 export class AffinePoint implements AffinePointInterface {
 
@@ -191,7 +190,7 @@ export function basePointMul(exp: any, curveOption: ECType | undefined = undefin
 
 export function randomFieldElement(prime: bigint = SetupCurveParam('EC_ALT_BN128').prime): bigint {
     let bitLength = Math.ceil(prime.toString(2).length / 8);
-    let randomHex = (randomBytes as any)(bitLength).toString('hex');
+    let randomHex = CryptoJS.lib.WordArray.random(bitLength).toString(CryptoJS.enc.Hex);
     const random = BigInt('0x' + randomHex);
     return math.mod(random, prime);
 }
