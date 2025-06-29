@@ -1,12 +1,8 @@
-import * as Keychain from 'react-native-keychain';
 import { Token } from '../web3/types';
-import { Contact, Network, Wallet, ZKTransfer, ZKTransferAmountTy } from '../local-storage';
 import { INote } from '../azeroth/interfaces';
 import { TokenUniqueID } from '../web3';
+import { Network, Wallet, ZKTransfer, ZKTransferAmountTy } from '../type/types';
 
-//
-// Constants
-//
 export const AppMajorVersion = '1';
 export const AppMinorVersion = '0';
 export const AppVersion = AppMajorVersion + '.' + AppMinorVersion;
@@ -163,8 +159,6 @@ export type InitWalletData = {
     }
 }
 
-export type BIOMETRY_TYPE = Keychain.BIOMETRY_TYPE | null;
-
 export type WindowDimension = {
     width: number,
     height: number
@@ -228,7 +222,6 @@ export type AppProfile<MiscType = any> = {
     deleteWalletList?: string[];
     networkReachability?: boolean;
     userPin?: string;
-    useBiometryType: BIOMETRY_TYPE;
     appWindowParams: AppWindowParams;
     logWeb3: boolean;
     web3Logs: string[];
@@ -293,51 +286,10 @@ export type TransferAmounts = {
 
 export type InitPinData = {
     userPin: number[],
-    biometryType: Keychain.BIOMETRY_TYPE | null,
     useBio: boolean,
 }
 
 export type ModalResponseOptions = 'Yes' | 'No' | 'Complete' | 'Cancel' | 'Not Set' | 'Not Supported' | 'Access Denied';
-
-// Unified modal page parameters
-export type NavRouteParameters = {
-    pageTask?: PageTaskAndActions;
-    modalType?: ModalType;
-    userPin?: string;
-    useBio?: boolean;
-    contact?: Contact;
-    wallet?: Wallet,
-    network?: Network,
-    networkUidOrChainId?: string;
-    token?: Token;
-    viewTokenParam?: ViewTokenParam;
-    feeAmount?: bigint;
-    scannedAddress?: string;
-    contactDetails?: NameAndAddressData;
-    viewHistoryParam?: ViewHistoryParam;
-    publicAddress?: string;
-    transferAmounts?: TransferAmounts;
-    zkTransfer?: ZKTransfer,
-    zkNoteTransfer?: ZKTransfer;
-    receiverAddr?: string;
-    fromNavPageName?: string;
-    initWalletData?: InitWalletData;
-    deleteWalletAddress?: string;
-    transferFailReason?: string;
-    initPinData?: InitPinData;
-    addtokenType?: "FT" | "NFT";
-    balanceSyncAppStateMiscParamName?: string;
-    unSpentWalletNoteItem?: UnSpentWalletNoteItem;
-
-    // deeplink params 
-    isExternalLink?: boolean;
-    to?: string;
-    amount?: string;
-    contractAddress?: string;
-    tokenID?: number;
-};
-
-export type ModalParameters = NavRouteParameters;
 
 export const Constants = {
     ...BooleanConstants,
