@@ -215,7 +215,7 @@ export default class Web3Extended extends Web3 {
         txDescription.gas = gasEstimation.gasEstimate;
         txDescription.gasPrice = gasEstimation.gasPrice;
 
-        let signedTx
+        let signedTx: any;
         try {
             consoleDebug("Signing tx ... ");
             const requestFtn: RequestFtn<SignTransactionResult> = (web3) => web3.eth.accounts.signTransaction(txDescription, senderEthPrivateKey);
@@ -390,7 +390,7 @@ export default class Web3Extended extends Web3 {
             txDescription.value = txValue;
         }
 
-        let signedTx
+        let signedTx: any;
         try {
             consoleDebug("Signing tx ... ");
             const requestFtn: RequestFtn<SignTransactionResult> = (web3) => web3.eth.accounts.signTransaction(txDescription, senderEthPrivateKey);
@@ -638,7 +638,7 @@ export default class Web3Extended extends Web3 {
         return this.getIndexerTransferList<ERCTokenPublicTransferList>(addressList, blockRange, 'ERC');
     }
 
-    async ppendPointRetryBlock<ResultT>(
+    async endPointRetryBlock<ResultT>(
         requestFtn: RequestFtn<ResultT>,
         requestFtnName : string = '',
         startWithLastUsedRpc : boolean = false,

@@ -1,4 +1,3 @@
-import Config from 'react-native-config';
 import { AuditKey, UPK, UserKey } from './keys';
 import { Token, TokenType, TokenUniqueID } from '../web3/types';
 import { sCT } from '../common/crypto/deprecated/encryption';
@@ -103,21 +102,21 @@ const SUBGROUP_ORDER = BigInt('2736030358979909402780800718157159386074658810754
 
 /* For test purposes */
 export const ZERO_ADDRESS =
-    Config.ZERO_ADDRESS || '0x0000000000000000000000000000000000000000';
+    '0x0000000000000000000000000000000000000000';
 
 /* Gas loaded on each tx */
 export const DEFAULT_REGISTER_GAS =
-    Number(Config.DEFAULT_REGISTER_GAS) || 200000;
+    200000;
 export const DEFAULT_ZK_TRANSFER_GAS =
-    Number(Config.DEFAULT_ZK_TRANSFER_GAS) || 6000000;
+    6000000;
 export const DEFAULT_LEGACY_TRANSFER_GAS =
-    Number(Config.DEFAULT_LEGACY_TRANSFER_GAS) || 100000;
-export const DEFAULT_DEPLOY_GAS = Number(Config.DEFAULT_DEPLOY_GAS) || 10000000;
-export const DEFAULT_GAS_VALUE = Number(Config.DEFAULT_GAS_VALUE) || 3000000;
+    100000;
+export const DEFAULT_DEPLOY_GAS = 10000000;
+export const DEFAULT_GAS_VALUE = 3000000;
 
 /* Expected gas cost on tx */
 export const EXPECTED_ZK_TRANSFER_GAS =
-    Number(Config.EXPECTED_ZK_TRANSFER_GAS) || 1500000;
+    1500000;
 
 export const Constants = {
     SUBGROUP_ORDER,

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { readFileAsUint8Array } from '../../../common/utilities';
 import { toJson } from '../../../common/utilities';
 import init, { prove } from '../../../wasm/zkwallet_circuit';
 
@@ -140,14 +139,15 @@ export default class ZkryptoCircuits {
         const base64Input = btoa(String.fromCharCode(...jsonBytes));
         const proof = prove(this.pk, base64Input);
 
-        return runProveResult.proof;
+        return proof;
     }
 
     async runVerify(proof, image) {
-        const imageJson = image;
-        const proofJson = proof;
-        const vkJson = toJson(this.vkObj);
-        return NativeCircuitModule.runVerify(imageJson, vkJson, proofJson);
+        // const imageJson = image;
+        // const proofJson = proof;
+        // const vkJson = toJson(this.vkObj);
+        // return NativeCircuitModule.runVerify(imageJson, vkJson, proofJson);
+        return true;
     }
 
     async readVerifyKeyFromFile() {

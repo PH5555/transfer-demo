@@ -1,4 +1,4 @@
-import { randomBytes } from 'react-native-randombytes';
+import CryptoJS from "crypto-js";
 import CurveParam from './curveParam';
 
 function legendreSymbol(a, p) {
@@ -159,7 +159,7 @@ function abs(a) {
 
 export function randomFieldElement(prime = CurveParam('EC_ALT_BN128').prime) {
     let bitLength = Math.ceil(prime.toString(2).length / 8);
-    let randomHex = randomBytes(bitLength).toString('hex');
+    let randomHex = CryptoJS.lib.WordArray.random(bitLength).toString(CryptoJS.enc.Hex);
     const random = BigInt('0x' + randomHex);
     return mod(random, prime);
 }

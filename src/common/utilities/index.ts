@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import { Platform } from 'react-native';
-import RNFS from 'react-native-fs'; 
 import { fromWei, toWei, EtherUnits } from 'web3-utils';
 
 //
@@ -121,38 +119,6 @@ function shuffleArray<T>(array: T[]): T[] {
     }
     return newArray;
 };
-
-
-async function readJsonFile(filePath: string): Promise<any | undefined> {
-
-    let fileData;
-    let jsonObj;
-
-    try {
-        if (Platform.OS === 'android') {
-            fileData = await RNFS.readFileAssets(
-                filePath,
-                'utf8'
-            );
-        } else {
-            fileData = await RNFS.readFile(
-                RNFS.MainBundlePath + '/' + filePath,
-                'utf8',
-            );
-        }
-    } catch (error) {
-        console.error('Error reading file:', error);
-        return undefined;
-    }
-
-    try {
-        jsonObj = JSON.parse(fileData);
-    } catch (error) {
-        console.error('Error parsing json file:', error);
-    }
-
-    return jsonObj;
-}
 
 function EmptyFtn() { return; }
 
@@ -412,37 +378,6 @@ export function getRandomInteger(max: number) {
     return Math.floor(randomNumber);
 }
 
-
-export async function readFile(filePath: string) {
-    let fileData;
-    try {
-        if (Platform.OS === 'android') {
-            fileData = await RNFS.readFileAssets(filePath, 'base64');
-        } else {
-            fileData = await RNFS.readFile(
-                RNFS.MainBundlePath + '/' + filePath,
-                'base64',
-            );
-        }
-    } catch (error) {
-        console.error('Error reading file:', error);
-        return null;
-    }
-    return fileData;
-}
-
-
-/**
- * A function to read file as binary and return byte(uint8) array
- * @param {string} filePath
- * @returns {Promise<number[]|null>}
- */
-export async function readFileAsUint8Array(filePath: string) {
-    const fileData = await readFile(filePath);
-    const byteArray = new Uint8Array(Buffer.from(fileData as string, 'base64'));
-    return [].slice.call(byteArray);
-}
-
 export function toShortHex(hex?: string | undefined, useZeroHash?: boolean | undefined) {
     return hex !== undefined ?
         "0x" + hex.replace("0x", "").substring(0, 4) + '...' + hex.slice(-4) :
@@ -460,7 +395,6 @@ export function toSecretString(str: string | undefined) {
 const utilities = {
     checkPinValidity,
     shuffleArray,
-    readJsonFile,
     EmptyFtn,
     splitTextIntoEqualLines,
     toWei: unitToWei,
@@ -472,7 +406,6 @@ const utilities = {
     decArrayToHexArray,
     decStrToHex,
     addPrefixHex,
-    readFileAsUint8Array
 };
 
 export default utilities;
