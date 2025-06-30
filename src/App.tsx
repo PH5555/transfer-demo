@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Network, Token, TokenType, TransferAmounts, Wallet } from './type/types';
 import { tranfer } from './azeroth/transfer';
 import { UserKey } from './azeroth/keys';
+import { AffinePoint } from './common/crypto/curve';
 
 function App() {
   const [senderAddress, setSenderAddress] = useState('');
@@ -11,6 +12,16 @@ function App() {
   const [receiverAddress, setReceiverAddress] = useState('');
   const [balanceAddress, setBalanceAddress] = useState('');
   const [amounts, setAmounts] = useState<TransferAmounts>(initAmounts());
+  const [zktransferData, setZktransferData] = useState({
+    senderAddress: '',
+    senderKey: '',
+    receiverAddress: '',
+    ena : '',
+    pkOwn : '',
+    x : '',
+    y : '',
+    sk : '',
+  });
 
   const hardhatNetwork: Network = {
     uid: 'hardhat-eth-31337',
@@ -82,6 +93,18 @@ function App() {
     });
   };
 
+  const handleZktransferDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setZktransferData(prev => {
+      const new_amount = {
+        ...prev,
+        [name]: value,
+      };
+      return new_amount;
+    });
+  };
+
   function setAutoAmounts(amount: TransferAmounts) {
       amount.totalInput =
           (amount.fromPublicAmount ? amount.fromPublicAmount : 0n) +
@@ -95,16 +118,25 @@ function App() {
       amount.remainingAmount = amount.totalInput - amount.totalOutput;
   }
 
-  const zktransfer = async(ethPrivateKey: string, userKey: UserKey, wallet: Wallet, receiverAddr: string, zkTxFee: bigint) => {
+  const zktransfer = async() => {
+    const wallet: Wallet = {
+      address: zktransferData.senderAddress,
+      name: '',
+      enaHex: zktransferData.ena,
+      pkOwn: zktransferData.pkOwn,
+      pkEncJson: '',
+      masked: false,
+      placeholderIconIndex: 0,
+    }
     tranfer({
-        ethPrivateKey,
-        userKey,
+        ethPrivateKey: senderKey,
+        userKey: new UserKey({ena: BigInt(zktransferData.ena), pkOwn: BigInt(zktransferData.pkOwn), pkEnc: new AffinePoint(BigInt(zktransferData.x), BigInt(zktransferData.y)), sk: BigInt(zktransferData.sk)}),
         network: hardhatNetwork as Network,
-        wallet: wallet as Wallet,
+        wallet,
         token: ethNativeToken as Token,
         amounts: amounts,
-        receiverAddr: receiverAddr as string,
-        zkTxFee: zkTxFee ? zkTxFee : 0n,
+        receiverAddr: receiverAddress,
+        zkTxFee: hardhatNetwork.latestZkTransferFeeHex ? BigInt(hardhatNetwork.latestZkTransferFeeHex) : 0n,
         advanceProgress: () => {},
         onFail: () => {}
     });
@@ -149,11 +181,21 @@ function App() {
       <div>
         <h2>zktransfer</h2>
         <div>보내는 사람 주소</div>
-        <input value={senderAddress} onChange={e => setSenderAddress(e.target.value)}/>
+        <input name='senderAddress' value={zktransferData.senderAddress} onChange={handleZktransferDataChange}/>
         <div>보내는 사람 키</div>
-        <input value={senderKey} onChange={e => setSenderKey(e.target.value)}/>
+        <input name='senderKey' value={zktransferData.senderKey} onChange={handleZktransferDataChange}/>
+        <div>보내는 사람 ena</div>
+        <input name='ena' value={zktransferData.ena} onChange={handleZktransferDataChange}/>
+        <div>보내는 사람 pkown</div>
+        <input name='pkOwn' value={zktransferData.pkOwn} onChange={handleZktransferDataChange}/>
+        <div>보내는 사람 pkencX</div>
+        <input name='pkEnc' value={zktransferData.x} onChange={handleZktransferDataChange}/>
+        <div>보내는 사람 pkencY</div>
+        <input name='pkEnc' value={zktransferData.y} onChange={handleZktransferDataChange}/>
+        <div>보내는 사람 sk</div>
+        <input name='sk' value={zktransferData.sk} onChange={handleZktransferDataChange}/>
         <div>받는 사람 주소</div>
-        <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
+        <input name='receiverAddress' value={zktransferData.receiverAddress} onChange={handleZktransferDataChange}/>
 
         <div>fromPublicAmount</div>
         <input name='fromPublicAmount' value={Number(amounts.fromPublicAmount)} onChange={handleAmountChange}/>
@@ -167,7 +209,7 @@ function App() {
         <input name='toPrivateAmount' value={Number(amounts.toPrivateAmount)} onChange={handleAmountChange}/>
 
         <br/>
-        <input type='button' value={"전송"} onClick={transfer}/>
+        <input type='button' value={"전송"} onClick={zktransfer}/>
       </div>
     </div>
   );

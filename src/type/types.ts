@@ -22,14 +22,11 @@ export class Network {
 }
 
 export class Wallet {
-    readonly address!: string;
+    address!: string;
     name!: string;
     enaHex!: string;
     pkOwn!: string;
     pkEncJson!: string;
-    ctPrivateKey!: AESCT;
-    ctMnemonic!: AESCT;
-    ctSecretKey!: AESCT;
     masked: boolean = false;
     placeholderIconIndex!: number;
 }
