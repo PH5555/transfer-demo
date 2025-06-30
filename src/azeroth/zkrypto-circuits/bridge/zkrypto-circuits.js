@@ -1,10 +1,7 @@
 import _ from 'lodash';
-import { Platform } from 'react-native';
-import RNFS from 'react-native-fs';
-import NativeCircuitModule from '../../../../tm/NativeCircuitModule';
 import { readFileAsUint8Array } from '../../../common/utilities';
 import { toJson } from '../../../common/utilities';
-
+import init, { prove } from '../../../wasm/zkwallet_circuit';
 
 export default class ZkryptoCircuits {
 
@@ -19,43 +16,19 @@ export default class ZkryptoCircuits {
      * If the contextId exists, it first calls finalizeCircuit.
      * @returns {Promise<true>}
      */
-    async init() {
+    async start() {
+        consoleLog('[ZKRYPTO-CIRCUITS] Initializing wasm');
+        await init();
 
-        consoleLog('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Initializing module');
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Loading PK CRS...');
+        consoleLog('[ZKRYPTO-CIRCUITS] Initializing module');
 
-        const crsPath =
-            Platform.OS === 'android' ?
-                RNFS.DocumentDirectoryPath + '/CRS_pk.dat' :
-                RNFS.MainBundlePath + '/crs/CRS_pk.dat';
+        this.pk_path = '/CRS_pk.dat';
 
-        let crsExist = await RNFS.exists(crsPath);
+        consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS...');
+        this.readVerifyKeyFromFile();
+        this.readProofKeyFromFile();
 
-        if (Platform.OS === 'android' && !crsExist) {
-
-            const asset_path = 'crs/CRS_pk.dat';
-            const asset_exist = await RNFS.existsAssets(asset_path);
-
-            if (asset_exist) {
-                try {
-                    consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] PK CRS Copy ...');
-                    await RNFS.copyFileAssets(asset_path, crsPath);
-                    crsExist = true;
-                    consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] PK CRS Copy ... Done');
-                } catch (error) {
-                    console.error('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] PK CRS copy to [' + crsPath + '] error :', error);
-                }
-            } else {
-                console.error('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] CRS Not Found in App PKG');
-            }
-        }
-
-        this.pk_path = crsPath;
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Loading PK CRS ... Done |', (crsExist ? '' : 'Not Found ') + '@ [' + crsPath + ']');
-
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Loading VK CRS...');
-        this.vk = await this.readVerifyKeyFromFile('crs/');
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Loading VK CRS ... Done ');
+        consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS ... Done ');
 
         this.vkObj = {
             Alpha_g1: [
@@ -149,11 +122,8 @@ export default class ZkryptoCircuits {
                 '2d0b5e75f4d6728d7a4641426ac7939fb7fb04cd91f1492688a4d7fa114fe080',
             ],
         };
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] CRS is loaded!');
-
-        consoleDebug('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Initializing done!');
-
-        consoleLog('[ZKRYPTO-CIRCUITS][' + Platform.OS.toUpperCase() + '] Initializing module ... Done');
+        consoleDebug('[ZKRYPTO-CIRCUITS] CRS is loaded!');
+        consoleLog('[ZKRYPTO-CIRCUITS] Initializing module ... Done');
 
         return true;
     }
@@ -165,8 +135,11 @@ export default class ZkryptoCircuits {
     async runProof(inputJson) {
         consoleLog(" Run Proof : ");
         consoleDebug(toJson(JSON.parse(inputJson), null, ' '));
-        const runProveResult = NativeCircuitModule.runProveCRSPath(inputJson, this.pk_path);
-        consoleDebug(toJson(_.omit(runProveResult, ['proof']), null, ' '));
+        const encoder = new TextEncoder();
+        const jsonBytes = encoder.encode(inputJson);
+        const base64Input = btoa(String.fromCharCode(...jsonBytes));
+        const proof = prove(this.pk, base64Input);
+
         return runProveResult.proof;
     }
 
@@ -177,14 +150,40 @@ export default class ZkryptoCircuits {
         return NativeCircuitModule.runVerify(imageJson, vkJson, proofJson);
     }
 
-    async readVerifyKeyFromFile(_path) {
-        const filePath = _path + 'CRS_vk.dat';
-        return readFileAsUint8Array(filePath);
+    async readVerifyKeyFromFile() {
+        await fetch('/CRS_vk.dat')
+                .then(response => {
+                    if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+                    console.log('Base64:', base64);
+                    this.vk = base64;
+                })
+                .catch(error => {
+                    console.error('Error fetching file:', error);
+                });
     }
 
-    async readProofKeyFromFile(_path) {
-        const filePath = _path + 'CRS_pk.dat';
-        return readFileAsUint8Array(filePath);
+    async readProofKeyFromFile() {
+        await fetch('/CRS_pk.dat')
+                .then(response => {
+                    if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+                    console.log('Base64:', base64);
+                    this.pk = base64;
+                })
+                .catch(error => {
+                    console.error('Error fetching file:', error);
+                });
     }
 }
 
