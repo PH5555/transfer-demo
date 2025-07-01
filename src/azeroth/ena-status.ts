@@ -9,8 +9,8 @@ import Encryption from '../common/crypto/deprecated/encryption';
 import { EnaStatus, GetAllEnaStatusResult } from './types';
 import { Network, Wallet } from '../type/types';
 
-export async function getAPK(network: Network): Promise<any> {
-    const azerothWeb3 = new Web3Azeroth(network);
+export async function getAPK(network: Network, privateKey: any): Promise<any> {
+    const azerothWeb3 = new Web3Azeroth(network, privateKey);
     return new AuditKey(await azerothWeb3.getAPK(), 0n);
 }
 
@@ -18,13 +18,15 @@ export async function checkEnaExist(
     {
         wallet,
         network,
+        privateKey
     }: {
         wallet: Wallet,
         network: Network,
+        privateKey: any
     }
 ): Promise<SetStatus> {
 
-    const azerothWeb3 = new Web3Azeroth(network);
+    const azerothWeb3 = new Web3Azeroth(network, privateKey);
 
     const userPublicKeyFromContract = await azerothWeb3.getUserPublicKeys(wallet.address);
 
@@ -43,18 +45,18 @@ export async function getRegisterEnaGasFee(
         userKeys,
         wallet,
         network,
-        secretsDecryptionKey,
+        privateKey,
     }: {
         userKeys: UserKey,
         wallet: Wallet,
         network: Network,
-        secretsDecryptionKey: string,
+        privateKey: string,
     }
 ): Promise<bigint> {
 
     try {
 
-        const azerothWeb3 = new Web3Azeroth(network);
+        const azerothWeb3 = new Web3Azeroth(network, privateKey);
 
         consoleLog('get registerUser gas fee ....');
 
@@ -83,19 +85,19 @@ export async function registerEna(
         userKeys,
         wallet,
         network,
-        secretsDecryptionKey,
+        privateKey,
     }: {
         userEthPrivateKey: string,
         userKeys: UserKey,
         wallet: Wallet,
         network: Network,
-        secretsDecryptionKey: string,
+        privateKey: string,
     }
 ): Promise<SendContractTransactionResult | undefined> {
 
     try {
 
-        const azerothWeb3 = new Web3Azeroth(network);
+        const azerothWeb3 = new Web3Azeroth(network, privateKey);
 
         consoleLog('registerEna ....');
 
@@ -199,7 +201,8 @@ export async function getAllEnaLength(
     userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
-    enaParam: { ena?: bigint, secretsDecryptionKey?: string }
+    enaParam: { ena?: bigint, secretsDecryptionKey?: string },
+    privateKey: string
 ): Promise<number | undefined> {
 
     if (!wallet || !network) return;
@@ -216,7 +219,7 @@ export async function getAllEnaLength(
         return
     }
 
-    const azerothWeb3 = new Web3Azeroth(network);
+    const azerothWeb3 = new Web3Azeroth(network, privateKey);
 
     const enaLen = await azerothWeb3.getEnaLength(ena);
 
@@ -241,6 +244,7 @@ export function getAllEnaStatus(
     userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
+    privateKey: string
 ): Promise<GetAllEnaStatusResult> {
 
     const P = new Promise<GetAllEnaStatusResult>(
@@ -260,7 +264,8 @@ export function getAllEnaStatus(
         getAllEnaStatusRun(
             userKey,
             wallet,
-            network
+            network, 
+            privateKey
         ).then(
             (result) => {
                 try { getAllEnaStatusAwaiters.forEach(({ resolve }) => resolve(result)) } catch (error) { }
@@ -295,6 +300,7 @@ export async function getAllEnaStatusRun(
     userKey: UserKey,
     wallet: Wallet | undefined,
     network: Network | undefined,
+    privateKey: string
 ): Promise<GetAllEnaStatusResult> {
 
     let result: GetAllEnaStatusResult = {
@@ -306,12 +312,13 @@ export async function getAllEnaStatusRun(
 
     consoleLog("getAllEnaStatus ... :", wallet.enaHex, network.networkName);
 
-    const azerothWeb3 = new Web3Azeroth(network);
+    const azerothWeb3 = new Web3Azeroth(network, privateKey);
 
     try {
         result.enaState = await checkEnaExist({ 
             wallet,
             network,
+            privateKey
         });
     } catch (error) {
         return result;

@@ -6,10 +6,13 @@ import { ZkEventData, ZkTransferEvent } from './types';
 import { toJson, web3NumbersToNumber } from "../common/utilities";
 import { PastEventOptions } from "../web3/types";
 import { Network } from '../type/types';
+import ZkWalletBase from "./ZkWalletBase.json";
+import Web3 from 'web3';
 
 export default class Web3Azeroth extends Web3Extended {
+    public smartContract: any;
 
-    constructor(network: Network) {
+    constructor(network: Network, privateKey: any) {
         super({
             networkUid: network.uid,
             endPointList: network.endPointList.map(e => e),
@@ -19,6 +22,13 @@ export default class Web3Azeroth extends Web3Extended {
                 abi: ABI.Azeroth
             }
         });
+
+        const web3 = new Web3('http://127.0.0.1:8545');
+        const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+        web3.eth.accounts.wallet.add(account);
+        const contractABI = ZkWalletBase.abi;
+        const contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+        this.smartContract = new web3.eth.Contract(contractABI, contractAddress);
     }
 
     async getZkTransferEvents(filterParams: PastEventOptions): Promise<ZkTransferEvent[]> {
@@ -44,13 +54,12 @@ export default class Web3Azeroth extends Web3Extended {
     }
 
     methodParamsToCurvePoint(rawData: any): AffinePoint {
-        return new AffinePoint(BigInt(rawData[0][0]), BigInt(rawData[0][1]))
+        return new AffinePoint(BigInt(rawData[0].x), BigInt(rawData[0].y))
     }
 
     async getAPK() {
         try {
-            const rawData = await this.sendContractCall({ methodName: 'getAPK', methodArgs: [] });
-            consoleDebugExtra(toJson(rawData, 2, 'hex'));
+            const rawData = await this.smartContract.methods.getAPK().call();
             return this.methodParamsToCurvePoint(rawData);
         } catch (error) {
             console.error("Error @ Web3Azeroth::getAPK :", error);
@@ -60,7 +69,7 @@ export default class Web3Azeroth extends Web3Extended {
 
     async getZkTransferFee() {
         try {
-            const fee_str: any = await this.sendContractCall({ methodName: 'getZkTransferFee', methodArgs: [] });
+            const fee_str: any = await this.smartContract.methods.getZkTransferFee().call();
             const fee = BigInt(fee_str.toString());
             return fee
         } catch (error) {
@@ -87,8 +96,7 @@ export default class Web3Azeroth extends Web3Extended {
 
     async getUserPublicKeys(address: string): Promise<UPK | undefined> {
         try {
-            const rawData = await this.sendContractCall({ methodName: 'getUserPublicKeys', methodArgs: [address] });
-            consoleDebugExtra(toJson(rawData, 2, 'hex'));
+            const rawData: any = await this.smartContract.methods.getUserPublicKeys(address).call();
             return this.methodParamsToUserPubKey(rawData);
         } catch (error) {
             console.warn("Error @ Web3Azeroth::getUserPublicKeys :", error);
@@ -120,11 +128,12 @@ export default class Web3Azeroth extends Web3Extended {
     }
 
     async isSpentNote(nf: bigint): Promise<boolean> {
-        return (await this.sendContractCall({ methodName: 'isNullified', methodArgs: [nf] })) === true;
+        const result: any = await this.smartContract.methods.isNullified(nf).call();
+        return result === true;
     }
 
     async getEnaLength(ena: bigint) {
-        const length = await this.sendContractCall({ methodName: 'getEnaLength', methodArgs: [ena] }) as bigint;
+        const length: any = await this.smartContract.methods.getEnaLength(ena).call() as bigint;
         try {
             return web3NumbersToNumber(length);
         } catch (error) {
@@ -133,20 +142,17 @@ export default class Web3Azeroth extends Web3Extended {
     }
 
     async getCiphertext(ena: bigint, index: number) {
-        const rawsCT = await this.sendContractCall({
-            methodName: 'getCiphertext',
-            methodArgs: [ena, index]
-        });
+        const rawsCT: any = await this.smartContract.methods.getCiphertext(ena, index).call();
         return rawsCT;
     }
 
     async getRootTop() {
-        const rawRoot = await this.sendContractCall({ methodName: 'getRootTop', methodArgs: [] });
+        const rawRoot: any = await this.smartContract.methods.getRootTop().call();
         return BigInt(rawRoot);
     }
 
     async getMerklePath(index: bigint) {
-        const rawPathArray = await this.sendContractCall({ methodName: 'getMerklePath', methodArgs: [index] });
+        const rawPathArray: any = await this.smartContract.methods.getMerklePath(index).call();
         const pathArray = (rawPathArray as string[]).map(bigintStr => BigInt(bigintStr));
         return pathArray;
     }

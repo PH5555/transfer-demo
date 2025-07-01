@@ -12,8 +12,8 @@ import { TransferAmounts } from '../common/types';
 import { sendErcApproval, sendTransfer } from '../web3/erc-utils';
 import { Network, Wallet } from '../type/types';
 
-export async function getZkTransferFee(network: Network): Promise<bigint> {
-    return await (new Web3Azeroth(network)).getZkTransferFee();
+export async function getZkTransferFee(network: Network, privateKey: any): Promise<bigint> {
+    return await (new Web3Azeroth(network, privateKey)).getZkTransferFee();
 }
 
 async function zkTransfer(transfer: ZkTransferMeta, advanceProgress: Function,) {
@@ -107,7 +107,7 @@ export async function tranfer(
     // check transfer info 
     const endPointList = network.endPointList.map(e => e);
     const zkAmounts = toTransferMetaAmount(amounts);
-    const web3Azeroth = new Web3Azeroth(network);
+    const web3Azeroth = new Web3Azeroth(network, ethPrivateKey);
     let ercApproveTxHash = '';
     let transferMeta: ZkTransferMeta | undefined = undefined;
     let txResultData = {
@@ -388,8 +388,10 @@ export async function tranfer(
                         userKey,
                         wallet,
                         network,
+                        ethPrivateKey
                     );
-
+                    console.log("getAllenaStatus");
+                    console.log(result);
                     const ena = result.enaList.find(v => v.token.tokenUid === token.tokenUid);
 
                     enaSCT = (ena?.enaStatus as EnaStatus).sCT;

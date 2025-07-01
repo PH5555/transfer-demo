@@ -5,6 +5,7 @@ import { Network, Token, TokenType, TransferAmounts, Wallet } from './type/types
 import { tranfer } from './azeroth/transfer';
 import { UserKey } from './azeroth/keys';
 import { AffinePoint } from './common/crypto/curve';
+import Web3Azeroth from './azeroth/web3-contract';
 
 function App() {
   const [senderAddress, setSenderAddress] = useState('');
@@ -32,7 +33,7 @@ function App() {
     decimal: 18,
     networkIconUri: '',
     networkIconCache: '',
-    azerothContractAddress: '0xYourZkMixerContract',
+    azerothContractAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     azerothContractBlk: 0,
     averageBlockTime: 1,
     isTestNet: true,
@@ -76,6 +77,11 @@ function App() {
 
         remainingAmount: 0n,
     }
+  }
+
+  const getUserkey = () => {
+    const web3Azeroth = new Web3Azeroth(hardhatNetwork, senderKey);
+    web3Azeroth.getUserPublicKeys(receiverAddress);
   }
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +176,7 @@ function App() {
         <div>받는 사람 주소</div>
         <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
         <br/>
-        <input type='button' value={"전송"} onClick={transfer}/>
+        <input type='button' value={"전송"} onClick={getUserkey}/>
 
         <h2>잔액 확인</h2>
         <div>주소</div>
@@ -189,9 +195,9 @@ function App() {
         <div>보내는 사람 pkown</div>
         <input name='pkOwn' value={zktransferData.pkOwn} onChange={handleZktransferDataChange}/>
         <div>보내는 사람 pkencX</div>
-        <input name='pkEnc' value={zktransferData.x} onChange={handleZktransferDataChange}/>
+        <input name='x' value={zktransferData.x} onChange={handleZktransferDataChange}/>
         <div>보내는 사람 pkencY</div>
-        <input name='pkEnc' value={zktransferData.y} onChange={handleZktransferDataChange}/>
+        <input name='y' value={zktransferData.y} onChange={handleZktransferDataChange}/>
         <div>보내는 사람 sk</div>
         <input name='sk' value={zktransferData.sk} onChange={handleZktransferDataChange}/>
         <div>받는 사람 주소</div>
