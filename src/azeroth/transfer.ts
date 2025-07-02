@@ -318,7 +318,7 @@ export async function tranfer(
 
         try {
 
-            let enaIndex = 0;
+            let enaIndex = -1;
             consoleDebugExtra(token.tokenName, " Ena Index =", enaIndex);
             const validEnaIndex = (idx: any) => ((idx !== undefined && idx !== null && idx >= 0));
 

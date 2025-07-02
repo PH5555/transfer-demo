@@ -54,7 +54,7 @@ export default class Web3Azeroth extends Web3Extended {
     }
 
     methodParamsToCurvePoint(rawData: any): AffinePoint {
-        return new AffinePoint(BigInt(rawData[0].x), BigInt(rawData[0].y))
+        return new AffinePoint(BigInt(rawData[0].x), BigInt(rawData[0].y));
     }
 
     async getAPK() {

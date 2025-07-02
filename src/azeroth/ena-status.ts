@@ -7,7 +7,7 @@ import { AuditKey, UserKey } from './keys';
 import { addHexPrefix, toHex, toJson } from '../common/utilities';
 import Encryption from '../common/crypto/deprecated/encryption';
 import { EnaStatus, GetAllEnaStatusResult } from './types';
-import { Network, Wallet } from '../type/types';
+import { Network, TokenType, Wallet } from '../type/types';
 
 export async function getAPK(network: Network, privateKey: any): Promise<any> {
     const azerothWeb3 = new Web3Azeroth(network, privateKey);
@@ -260,7 +260,7 @@ export function getAllEnaStatus(
         );
 
         getAllEnaStatusIsRunning = true;
-
+ 
         getAllEnaStatusRun(
             userKey,
             wallet,
@@ -330,12 +330,13 @@ export async function getAllEnaStatusRun(
 
     let enaLen;
     try {
+        console.log("user ena : " + userKey.pk.ena)
         enaLen = await azerothWeb3.getEnaLength(userKey.pk.ena);
     } catch (error) {
         return result;
     }
 
-    consoleDebug("getAllEnaStatus ... : ena status count =", enaLen);
+    console.log("getAllEnaStatus ... : ena status count =", enaLen);
 
     if (enaLen === undefined || enaLen <= 0) return result;
 
@@ -348,23 +349,32 @@ export async function getAllEnaStatusRun(
             continue;
         }
 
-        // if (enaStatus) {
+        if (enaStatus) {
+            let token = {
+                networkUid: 'hardhat-eth-31337',
+                tokenUid: 'hardhat-eth-31337-native',
+                tokenType: TokenType.NATIVE,
+                isNative: true,
+                isERC: false,
+                isNFT: false,
+                contractAddress: '',
+                tokenName: 'Ethereum',
+                tokenSymbol: 'ETH',
+                decimal: 18,
+            };
 
-        //     //TODO: 토큰 추가
-        //     let token;
+            if (token !== undefined) {
 
-        //     if (token !== undefined) {
+                console.log("getAllEnaStatus ... : update enaIndex to localStore : ", token.tokenName, token.tokenUid, enaIndex);
 
-        //         consoleLog("getAllEnaStatus ... : update enaIndex to localStore : ", token.tokenName, token.tokenUid, enaIndex);
-
-        //         result.enaList.push({
-        //             token: token,
-        //             balance: enaStatus.balance,
-        //             enaIndex,
-        //             enaStatus,
-        //         });
-        //     }
-        // }
+                result.enaList.push({
+                    token: token,
+                    balance: enaStatus.balance,
+                    enaIndex,
+                    enaStatus,
+                });
+            }
+        }
     }
 
     return result;

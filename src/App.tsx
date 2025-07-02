@@ -58,7 +58,7 @@ function App() {
     isNative: true,
     isERC: false,
     isNFT: false,
-    contractAddress: '',
+    contractAddress: '0',
     tokenName: 'Ethereum',
     tokenSymbol: 'ETH',
     decimal: 18,
@@ -135,13 +135,13 @@ function App() {
       placeholderIconIndex: 0,
     }
     tranfer({
-        ethPrivateKey: senderKey,
+        ethPrivateKey: zktransferData.senderKey,
         userKey: new UserKey({ena: BigInt(zktransferData.ena), pkOwn: BigInt(zktransferData.pkOwn), pkEnc: new AffinePoint(BigInt(zktransferData.x), BigInt(zktransferData.y)), sk: BigInt(zktransferData.sk)}),
         network: hardhatNetwork as Network,
         wallet,
         token: ethNativeToken as Token,
         amounts: amounts,
-        receiverAddr: receiverAddress,
+        receiverAddr: zktransferData.receiverAddress,
         zkTxFee: hardhatNetwork.latestZkTransferFeeHex ? BigInt(hardhatNetwork.latestZkTransferFeeHex) : 0n,
         advanceProgress: () => {},
         onFail: () => {}
@@ -176,7 +176,7 @@ function App() {
         <div>받는 사람 주소</div>
         <input value={receiverAddress} onChange={e => setReceiverAddress(e.target.value)}/>
         <br/>
-        <input type='button' value={"전송"} onClick={getUserkey}/>
+        <input type='button' value={"전송"} onClick={transfer}/>
 
         <h2>잔액 확인</h2>
         <div>주소</div>

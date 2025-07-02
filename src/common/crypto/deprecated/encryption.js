@@ -1,3 +1,4 @@
+/* eslint-env es2020, node */
 import math from './math';
 import mimc from './mimc';
 import types from './types';
