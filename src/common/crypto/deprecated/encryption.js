@@ -174,7 +174,7 @@ class publicKeyEncryption {
      */
     Enc(apk, upk, ...msg) {
         let Curve = new curve.TwistedEdwardsCurve(
-            new CurveParam('EC_ALT_BN128'),
+            new CurveParam(),
         );
         let r = math.randomFieldElement(this.prime);
         let k = math.randomFieldElement(this.prime);

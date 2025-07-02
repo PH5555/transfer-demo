@@ -59,6 +59,7 @@ export type GenerationSnarkInput = {
     sCT: sCT;
     root: bigint;
     merklePath: bigint[];
+    merklePathIndex: bigint;
 };
 
 export type ZkTransferMeta = {
@@ -71,6 +72,7 @@ export type ZkTransferMeta = {
     sCT: sCT;
     root: bigint;
     merklePath: bigint[];
+    merklePathIndex: bigint;
 };
 
 export class ZkEventData implements IZkEventData {

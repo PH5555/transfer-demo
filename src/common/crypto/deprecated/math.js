@@ -157,11 +157,19 @@ function abs(a) {
     return a >= 0 ? a : -a;
 }
 
-export function randomFieldElement(prime = CurveParam('EC_ALT_BN128').prime) {
-    let bitLength = Math.ceil(prime.toString(2).length / 8);
-    let randomHex = CryptoJS.lib.WordArray.random(bitLength).toString(CryptoJS.enc.Hex);
-    const random = BigInt('0x' + randomHex);
-    return mod(random, prime);
+export function randomFieldElement(prime = CurveParam().scalarPrime) {
+    prime = BigInt(2736030358979909402780800718157159386076813972158567259200215660948447373041);
+    let byteLength = Math.ceil(prime.toString(2).length / 8); // 32 for BN254, BabyJubJub
+    let r;
+    do {
+        let randomHex = CryptoJS.lib.WordArray.random(byteLength).toString(CryptoJS.enc.Hex);
+        // 항상 64자리 hex로 패딩!
+        if (randomHex.length < byteLength * 2) {
+            randomHex = randomHex.padStart(byteLength * 2, '0');
+        }
+        r = BigInt('0x' + randomHex);
+    } while (r >= prime);
+    return r;
 }
 
 const math = {

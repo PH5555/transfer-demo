@@ -133,7 +133,7 @@ export default class ZkryptoCircuits {
 
     async runProof(inputJson) {
         consoleLog(" Run Proof : ");
-        consoleDebug(toJson(JSON.parse(inputJson), null, ' '));
+        // consoleDebug(toJson(JSON.parse(inputJson), null, ' '));
         const encoder = new TextEncoder();
         const jsonBytes = encoder.encode(inputJson);
         const base64Input = btoa(String.fromCharCode(...jsonBytes));
@@ -170,26 +170,25 @@ export default class ZkryptoCircuits {
 
     async readProofKeyFromFile() {
         await fetch('/CRS_pk.dat')
-                .then(response => {
-                    if (!response.ok) {
+            .then(response => {
+                if (!response.ok) {
                     throw new Error('Network response was not ok');
-                    }
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    const blob = new Blob([buffer]);
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const base64 = reader.result.split(",")[1];
-                        console.log('proof key Base64:', base64);
-                        this.pk = base64;
-                    };
-                    reader.readAsDataURL(blob);
-                    console.log("proof key setting done");
-                })
-                .catch(error => {
-                    console.error('Error fetching file:', error);
-                });
+                }
+                return response.arrayBuffer();
+            })
+            .then(buffer => {
+                const bytes = new Uint8Array(buffer);
+                let binary = "";
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                const base64 = btoa(binary);
+                console.log('proof key Base64:', base64);
+                this.pk = base64;
+            })
+            .catch(error => {
+                console.error('Error fetching file:', error);
+            });
     }
 }
 

@@ -22,43 +22,43 @@ async function zkTransfer(transfer: ZkTransferMeta, advanceProgress: Function,) 
 
     advanceProgress();
 
-    switch (transfer.tokenInfo.tokenType) {
-        case TokenType.NATIVE:
-            const value =
-                transfer.zkWalletFee + transfer.amounts.fromPublicAmount;
+    // switch (transfer.tokenInfo.tokenType) {
+    //     case TokenType.NATIVE:
+    //         const value =
+    //             transfer.zkWalletFee + transfer.amounts.fromPublicAmount;
 
-            return await transfer.web3Azeroth.zkTransfer20(
-                contractInput,
-                transfer.networkKeys.senderEOA,
-                value,
-                transfer.networkKeys.senderPrivateKey,
-                false,
-            );
-        case TokenType.ERC_20:
-            return await transfer.web3Azeroth.zkTransfer20(
-                contractInput,
-                transfer.networkKeys.senderEOA,
-                transfer.zkWalletFee,
-                transfer.networkKeys.senderPrivateKey,
-                false,
-            );
-        case TokenType.ERC_721:
-            return await transfer.web3Azeroth.zkTransfer721(
-                contractInput,
-                transfer.networkKeys.senderEOA,
-                transfer.zkWalletFee,
-                transfer.networkKeys.senderPrivateKey,
-                false,
-            );
-        case TokenType.ERC_1155:
-            return await transfer.web3Azeroth.zkTransfer1155(
-                contractInput,
-                transfer.networkKeys.senderEOA,
-                transfer.zkWalletFee,
-                transfer.networkKeys.senderPrivateKey,
-                false,
-            );
-    }
+    //         return await transfer.web3Azeroth.zkTransfer20(
+    //             contractInput,
+    //             transfer.networkKeys.senderEOA,
+    //             value,
+    //             transfer.networkKeys.senderPrivateKey,
+    //             false,
+    //         );
+    //     case TokenType.ERC_20:
+    //         return await transfer.web3Azeroth.zkTransfer20(
+    //             contractInput,
+    //             transfer.networkKeys.senderEOA,
+    //             transfer.zkWalletFee,
+    //             transfer.networkKeys.senderPrivateKey,
+    //             false,
+    //         );
+    //     case TokenType.ERC_721:
+    //         return await transfer.web3Azeroth.zkTransfer721(
+    //             contractInput,
+    //             transfer.networkKeys.senderEOA,
+    //             transfer.zkWalletFee,
+    //             transfer.networkKeys.senderPrivateKey,
+    //             false,
+    //         );
+    //     case TokenType.ERC_1155:
+    //         return await transfer.web3Azeroth.zkTransfer1155(
+    //             contractInput,
+    //             transfer.networkKeys.senderEOA,
+    //             transfer.zkWalletFee,
+    //             transfer.networkKeys.senderPrivateKey,
+    //             false,
+    //         );
+    // }
 }
 
 export async function tranfer(
@@ -447,6 +447,7 @@ export async function tranfer(
                 sCT: enaSCT,
                 root,
                 merklePath,
+                merklePathIndex
             };
 
         } catch (error) {
@@ -475,59 +476,59 @@ export async function tranfer(
         let txResult: SendContractTransactionResult | undefined = undefined;
 
         try {
-            txResult = await zkTransfer(transferMeta, advanceProgress);
+            await zkTransfer(transferMeta, advanceProgress);
         } catch (error) {
             console.error("Error @ zkTransfer call : ", error);
             onFail('Internal');
             return;
         }
 
-        if (txResult?.transactionReceipt === undefined) {
-            console.error("Error @ zkTransfer call txResult = ", toJson(txResult, 2));
-            if (txResult?.gasEstimation?.possibleOverShot === true) {
-                onFail('InsufficientBalance')
-            } else {
-                onFail('Internal');
-            }
-            return;
-        }
+        // if (txResult?.transactionReceipt === undefined) {
+        //     console.error("Error @ zkTransfer call txResult = ", toJson(txResult, 2));
+        //     if (txResult?.gasEstimation?.possibleOverShot === true) {
+        //         onFail('InsufficientBalance')
+        //     } else {
+        //         onFail('Internal');
+        //     }
+        //     return;
+        // }
 
-        consoleLog("zkTransfer Call Success : ",
-            ("\n" + ("-").repeat(40)),
-            "\ntxResult :",
-            ("\n" + ("-").repeat(40)),
-            "\n", toJson(txResult, 2),
-            ("\n" + ("-").repeat(40)),
-            ("\n" + ("-").repeat(40)),
-        );
+        // consoleLog("zkTransfer Call Success : ",
+        //     ("\n" + ("-").repeat(40)),
+        //     "\ntxResult :",
+        //     ("\n" + ("-").repeat(40)),
+        //     "\n", toJson(txResult, 2),
+        //     ("\n" + ("-").repeat(40)),
+        //     ("\n" + ("-").repeat(40)),
+        // );
 
-        consoleLog("zkTransfer  : ",
-            ("\n" + ("-").repeat(40)),
-            "\ntransferMeta (Post zkTransfer) :",
-            ("\n" + ("-").repeat(40)),
-            "\n", toJson({ ...transferMeta, web3Azeroth: undefined }, 2, "hex"),
-            ("\n" + ("-").repeat(40)),
-            ("\n" + ("-").repeat(40)),
-        );
+        // consoleLog("zkTransfer  : ",
+        //     ("\n" + ("-").repeat(40)),
+        //     "\ntransferMeta (Post zkTransfer) :",
+        //     ("\n" + ("-").repeat(40)),
+        //     "\n", toJson({ ...transferMeta, web3Azeroth: undefined }, 2, "hex"),
+        //     ("\n" + ("-").repeat(40)),
+        //     ("\n" + ("-").repeat(40)),
+        // );
 
-        advanceProgress();
+        // advanceProgress();
 
-        txResultData.blockNumber = web3NumbersToNumber(txResult.transactionReceipt.blockNumber);
-        txResultData.transactionIndex = web3NumbersToNumber(txResult.transactionReceipt.transactionIndex);
-        txResultData.transactionHash = txResult.transactionReceipt.transactionHash.toString();
-        try { txResultData.transactionGasUsed = web3NumbersToBigInt(txResult.transactionReceipt.gasUsed); } catch (e) { }
+        // txResultData.blockNumber = web3NumbersToNumber(txResult.transactionReceipt.blockNumber);
+        // txResultData.transactionIndex = web3NumbersToNumber(txResult.transactionReceipt.transactionIndex);
+        // txResultData.transactionHash = txResult.transactionReceipt.transactionHash.toString();
+        // try { txResultData.transactionGasUsed = web3NumbersToBigInt(txResult.transactionReceipt.gasUsed); } catch (e) { }
                 
-        try {
-            txResultData.transactionGasPrice =
-                txResult.transactionReceipt.effectiveGasPrice !== undefined 
-                    ? web3NumbersToBigInt(txResult.transactionReceipt.effectiveGasPrice)
-                    : txResult.gasEstimation !== undefined ? txResult.gasEstimation.gasPrice
-                        : 0n;
-        } catch (e) { }
+        // try {
+        //     txResultData.transactionGasPrice =
+        //         txResult.transactionReceipt.effectiveGasPrice !== undefined 
+        //             ? web3NumbersToBigInt(txResult.transactionReceipt.effectiveGasPrice)
+        //             : txResult.gasEstimation !== undefined ? txResult.gasEstimation.gasPrice
+        //                 : 0n;
+        // } catch (e) { }
 
-        if (txResult.transactionBlock !== undefined) {
-            txResultData.blockDateTime = web3NumbersToNumber(txResult.transactionBlock.timestamp);
-        }
+        // if (txResult.transactionBlock !== undefined) {
+        //     txResultData.blockDateTime = web3NumbersToNumber(txResult.transactionBlock.timestamp);
+        // }
 
     }
     // TODO: 백엔드 DB 작업 블록 추가

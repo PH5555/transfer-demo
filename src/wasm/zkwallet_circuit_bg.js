@@ -45,19 +45,6 @@ function isLikeNone(x) {
 
 let WASM_VECTOR_LEN = 0;
 
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8ArrayMemory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_2.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
-
 const lTextEncoder = typeof TextEncoder === 'undefined' ? (0, module.require)('util').TextEncoder : TextEncoder;
 
 let cachedTextEncoder = new lTextEncoder('utf-8');
@@ -114,65 +101,36 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
-const WasmCircuitFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_wasmcircuit_free(ptr >>> 0, 1));
-
-export class WasmCircuit {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        WasmCircuitFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_wasmcircuit_free(ptr, 0);
-    }
-    /**
-     * @param {Uint8Array} proving_key_bytes
-     * @returns {string}
-     */
-    prove(proving_key_bytes) {
-        let deferred3_0;
-        let deferred3_1;
-        try {
-            const ptr0 = passArray8ToWasm0(proving_key_bytes, wasm.__wbindgen_malloc);
-            const len0 = WASM_VECTOR_LEN;
-            const ret = wasm.wasmcircuit_prove(this.__wbg_ptr, ptr0, len0);
-            var ptr2 = ret[0];
-            var len2 = ret[1];
-            if (ret[3]) {
-                ptr2 = 0; len2 = 0;
-                throw takeFromExternrefTable0(ret[2]);
-            }
-            deferred3_0 = ptr2;
-            deferred3_1 = len2;
-            return getStringFromWasm0(ptr2, len2);
-        } finally {
-            wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-        }
-    }
-    /**
-     * @param {Uint8Array} pvk_bytes
-     * @param {string} proof_b64
-     * @param {string} public_inputs_b64
-     * @returns {boolean}
-     */
-    verify(pvk_bytes, proof_b64, public_inputs_b64) {
-        const ptr0 = passArray8ToWasm0(pvk_bytes, wasm.__wbindgen_malloc);
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+/**
+ * @param {string} proving_key_b64
+ * @param {string} input_b64
+ * @returns {string}
+ */
+export function prove(proving_key_b64, input_b64) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(proving_key_b64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(proof_b64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr1 = passStringToWasm0(input_b64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(public_inputs_b64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ret = wasm.wasmcircuit_verify(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2);
-        if (ret[2]) {
-            throw takeFromExternrefTable0(ret[1]);
+        const ret = wasm.prove(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
         }
-        return ret[0] !== 0;
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
