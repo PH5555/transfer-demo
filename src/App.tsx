@@ -1,11 +1,13 @@
 import './App.css';
 import { ethers } from 'ethers';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Network, Token, TokenType, TransferAmounts, Wallet } from './type/types';
 import { tranfer } from './azeroth/transfer';
 import { UserKey } from './azeroth/keys';
 import { AffinePoint } from './common/crypto/curve';
 import Web3Azeroth from './azeroth/web3-contract';
+import ZkryptoCircuits from './azeroth/zkrypto-circuits';
+import { useEffectOnce } from './hook/useEffectOnce';
 
 function App() {
   const [senderAddress, setSenderAddress] = useState('');
@@ -164,6 +166,14 @@ function App() {
     const provider = new ethers.JsonRpcProvider("http://localhost:8545");
     console.log(await provider.getBalance(balanceAddress));
   }
+
+  useEffectOnce(() => {
+    const appEntry = async () => {
+      await ZkryptoCircuits.service.start();
+    }
+
+    appEntry();
+  })
 
   return (
     <div className="App">

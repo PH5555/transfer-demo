@@ -24,8 +24,8 @@ export default class ZkryptoCircuits {
         this.pk_path = '/CRS_pk.dat';
 
         consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS...');
-        this.readVerifyKeyFromFile();
-        this.readProofKeyFromFile();
+        await this.readVerifyKeyFromFile();
+        await this.readProofKeyFromFile();
 
         consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS ... Done ');
 
@@ -160,7 +160,7 @@ export default class ZkryptoCircuits {
                 })
                 .then(buffer => {
                     const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-                    console.log('Base64:', base64);
+                    console.log('verify key Base64:', base64);
                     this.vk = base64;
                 })
                 .catch(error => {
@@ -178,7 +178,7 @@ export default class ZkryptoCircuits {
                 })
                 .then(buffer => {
                     const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-                    console.log('Base64:', base64);
+                    console.log('proof key Base64:', base64);
                     this.pk = base64;
                 })
                 .catch(error => {
@@ -189,7 +189,7 @@ export default class ZkryptoCircuits {
 
 
 function consoleLog(message, ...optionalParams) {
-    // console.log(message, ...optionalParams);
+    console.log(message, ...optionalParams);
 }
 
 function consoleDebug(message, ...optionalParams) {
