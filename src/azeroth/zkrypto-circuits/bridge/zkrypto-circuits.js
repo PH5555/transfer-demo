@@ -177,9 +177,15 @@ export default class ZkryptoCircuits {
                     return response.arrayBuffer();
                 })
                 .then(buffer => {
-                    const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-                    console.log('proof key Base64:', base64);
-                    this.pk = base64;
+                    const blob = new Blob([buffer]);
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const base64 = reader.result.split(",")[1];
+                        console.log('proof key Base64:', base64);
+                        this.pk = base64;
+                    };
+                    reader.readAsDataURL(blob);
+                    console.log("proof key setting done");
                 })
                 .catch(error => {
                     console.error('Error fetching file:', error);
@@ -193,7 +199,7 @@ function consoleLog(message, ...optionalParams) {
 }
 
 function consoleDebug(message, ...optionalParams) {
-    // console.debug(message, ...optionalParams);
+    console.debug(message, ...optionalParams);
 }
 
 function consoleDebugExtra(message, ...optionalParams) {
