@@ -40,7 +40,6 @@ export type Witness = {
     k_point_x: bigint;
     leaf_pos: bigint;
     tree_proof: bigint[];
-    leaf_index: bigint;
 };
 
 export default class SnarkInputParam {
@@ -166,7 +165,6 @@ export default class SnarkInputParam {
                     return decStr.substring(0, decStr.length).padStart(32, '0');
                 })(this.witness.leaf_pos),
                 tree_proof: this.witness.tree_proof.map(x => x.toString(16)),
-                leaf_index: this.witness.leaf_index.toString(16),
             },
         });
     }

@@ -59,7 +59,6 @@ export type GenerationSnarkInput = {
     sCT: sCT;
     root: bigint;
     merklePath: bigint[];
-    merklePathIndex: bigint;
 };
 
 export type ZkTransferMeta = {

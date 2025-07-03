@@ -41,7 +41,7 @@ export function generateSnarkInput(
 
     consoleDebug("generateSnarkInput ...")
 
-    const { zkWalletKeys, transferAmount, sCT, tokenInfo, root, merklePath, merklePathIndex } = rawInput;
+    const { zkWalletKeys, transferAmount, sCT, tokenInfo, root, merklePath } = rawInput;
 
     consoleDebug("generateSnarkInput .. : zkWalletKeys = \n", toJson(zkWalletKeys, 2, 'hex'))
     consoleDebug("generateSnarkInput .. : transferAmount = \n", toJson(transferAmount, 2, 'hex'))
@@ -191,7 +191,6 @@ export function generateSnarkInput(
         k_point_x: newK.x,
         leaf_pos: transferAmount.fromNote.index,
         tree_proof: merklePath,
-        leaf_index: merklePathIndex
     };
 
 

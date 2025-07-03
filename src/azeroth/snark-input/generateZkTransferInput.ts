@@ -15,7 +15,6 @@ export async function generateZkTransferInput(transfer: ZkTransferMeta) {
             sCT: transfer.sCT,
             root: transfer.root,
             merklePath: transfer.merklePath,
-            merklePathIndex: transfer.merklePathIndex,
         },
         transfer.amounts.toPublicAmount > BigInt(0) ? transfer.networkKeys.receiverEOA : '0x0000000000000000000000000000000000000000',
     );
@@ -34,7 +33,7 @@ export async function generateZkTransferInput(transfer: ZkTransferMeta) {
 
     const verified = await ZkryptoCircuits.service.runVerify(
         rawProof,
-        toJson(statement),
+        circuitInput,
     );
 
     consoleDebug("generateZkTransferInput .. : verified = ", toJson(verified, 2))

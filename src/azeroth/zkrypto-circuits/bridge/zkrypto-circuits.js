@@ -1,10 +1,7 @@
 import _ from 'lodash';
-import { toJson } from '../../../common/utilities';
 import init, { prove, verify } from '../../../wasm/zkwallet_circuit';
 
 export default class ZkryptoCircuits {
-
-    pk_path = '';
     pk = undefined;
     vk = undefined;
     pvk = undefined;
@@ -21,9 +18,6 @@ export default class ZkryptoCircuits {
         await init();
 
         consoleLog('[ZKRYPTO-CIRCUITS] Initializing module');
-
-        this.pk_path = '/CRS_pk.dat';
-
         consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS...');
         await this.readVerifyKeyFromFile();
         await this.readProofKeyFromFile();
@@ -48,7 +42,7 @@ export default class ZkryptoCircuits {
     }
 
     async runVerify(proof, image) {
-        return verify(this.pvk, this.jsonToBase64(proof), this.jsonToBase64(image));
+        return verify(this.pvk, proof, this.jsonToBase64(image));
     }
 
     jsonToBase64(json) {
