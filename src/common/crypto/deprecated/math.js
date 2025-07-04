@@ -157,8 +157,7 @@ function abs(a) {
     return a >= 0 ? a : -a;
 }
 
-export function randomFieldElement(prime = CurveParam().scalarPrime) {
-    prime = BigInt(2736030358979909402780800718157159386076813972158567259200215660948447373041);
+export function randomFieldElement(prime) {
     let byteLength = Math.ceil(prime.toString(2).length / 8); // 32 for BN254, BabyJubJub
     let r;
     do {

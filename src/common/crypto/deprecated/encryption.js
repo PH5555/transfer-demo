@@ -176,15 +176,15 @@ class publicKeyEncryption {
         let Curve = new curve.TwistedEdwardsCurve(
             new CurveParam(),
         );
-        let r = math.randomFieldElement(this.prime);
-        let k = math.randomFieldElement(this.prime);
+        let r = math.randomFieldElement(BigInt('2736030358979909402780800718157159386076813972158567259200215660948447373041'));
+        let k = math.randomFieldElement(BigInt('21888242871839275222246405745257275088548364400416034343698204186575808495617'));
 
         let curveK = curve.basePointMul(k);
         let curvePk = Curve.computeScalarMul(upk.pkEnc, r);
         let curveApk = Curve.computeScalarMul(apk, r);
 
         let c0 = curve.basePointMul(r);
-        let c1 = Curve.addAffinePoint(curveK, curvePk);
+        let c1 = Curve.addAffinePoint(curveK, curvePk); //여기
         let c2 = Curve.addAffinePoint(curveK, curveApk);
 
         let c3 = (() => {
