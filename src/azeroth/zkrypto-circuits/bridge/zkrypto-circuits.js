@@ -19,7 +19,6 @@ export default class ZkryptoCircuits {
 
         consoleLog('[ZKRYPTO-CIRCUITS] Initializing module');
         consoleDebug('[ZKRYPTO-CIRCUITS] Loading VK CRS...');
-        await this.readVerifyKeyFromFile();
         await this.readProofKeyFromFile();
         await this.readPreparedVerifyKeyFromFile();
 
@@ -50,29 +49,6 @@ export default class ZkryptoCircuits {
         const jsonBytes = encoder.encode(json);
         const base64 = btoa(String.fromCharCode(...jsonBytes));
         return base64;
-    }
-
-    async readVerifyKeyFromFile() {
-        await fetch('/CRS_vk.dat')
-                .then(response => {
-                    if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                    }
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    const bytes = new Uint8Array(buffer);
-                    let binary = "";
-                    for (let i = 0; i < bytes.byteLength; i++) {
-                        binary += String.fromCharCode(bytes[i]);
-                    }
-                    const base64 = btoa(binary);
-                    console.log('verify key Base64:', base64);
-                    this.vk = base64;
-                })
-                .catch(error => {
-                    console.error('Error fetching file:', error);
-                });
     }
 
     async readPreparedVerifyKeyFromFile() {

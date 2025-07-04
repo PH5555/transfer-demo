@@ -160,7 +160,7 @@ export function generateSnarkInput(
         rt: root,
         sn: serialNumber,
         addr: zkWalletKeys.userKey.pk.ena,
-        k_b: zkWalletKeys.userKey.pk.pkOwn,
+        k_b: zkWalletKeys.userKey.pk.pkOwn, //
         k_u: zkWalletKeys.userKey.pk.pkEnc,
         cm_: newCm,
         cout: newSCT,
@@ -175,7 +175,7 @@ export function generateSnarkInput(
     };
 
     const witness: Witness = {
-        sk: zkWalletKeys.userKey.sk,
+        sk: zkWalletKeys.userKey.sk, //
         cm: transferAmount.fromNote.commitment,
         du: transferAmount.fromNote.open,
         dv: inPrivate,
