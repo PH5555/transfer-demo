@@ -1,11 +1,10 @@
 import './App.css';
 import { ethers } from 'ethers';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Network, Token, TokenType, TransferAmounts, Wallet } from './type/types';
 import { tranfer } from './azeroth/transfer';
 import { UserKey } from './azeroth/keys';
 import { AffinePoint } from './common/crypto/curve';
-import Web3Azeroth from './azeroth/web3-contract';
 import ZkryptoCircuits from './azeroth/zkrypto-circuits';
 import { useEffectOnce } from './hook/useEffectOnce';
 
@@ -16,14 +15,14 @@ function App() {
   const [balanceAddress, setBalanceAddress] = useState('');
   const [amounts, setAmounts] = useState<TransferAmounts>(initAmounts());
   const [zktransferData, setZktransferData] = useState({
-    senderAddress: '0x51287557cc25b1cd59d23de6d01ec48882e375e4',
-    senderKey: '0x65de05002b520cc82f2d25e6e19d6e10f30f43cb86414d7522c0d686be493613',
-    receiverAddress: '0x79062f39b622f06439a627e2495ad91bcef96935',
-    ena : '11359580520709086729134729091953232005064730936845633079836961830579643132122',
-    pkOwn : '7392316925912317290265144277207528494864270529593997936892162259041030949164',
-    x : '4297928826232387990285982255816096709964762525080081855366747505627883221179',
-    y : '18628247735948759456575293548071051689485082995408139313142156099166712819380',
-    sk : '20516567171577214004055319208826148954478867318456218158546282208535875442529',
+    senderAddress: '0xcbd0f2aaf303228ce8da411d7cb590a9cb7f626c',
+    senderKey: '0x5e59ff18dd1e8c6013389ab7f065e4622a169745d349cbdb6a39ce2730dc02be',
+    receiverAddress: '0xfc1ed53fd7715a674067fc8d026e43a0de0079f1',
+    ena : '5474411764749184322219315921304607731789290654541529175276057735699532860724',
+    pkOwn : '15187268278904527857632595581495441811347725267518827142361085570564474952801',
+    x : '1566144450967075601808997144239416895393558849644923182587326993758761724097',
+    y : '6442453947869642764978927071615814777858962075310320019517212425456586950242',
+    sk : '8466482982939007678147309160579445989022999959124239040451435796766911859640',
   });
 
   const hardhatNetwork: Network = {
@@ -79,11 +78,6 @@ function App() {
 
         remainingAmount: 0n,
     }
-  }
-
-  const getUserkey = () => {
-    const web3Azeroth = new Web3Azeroth(hardhatNetwork, senderKey);
-    web3Azeroth.getUserPublicKeys(receiverAddress);
   }
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
