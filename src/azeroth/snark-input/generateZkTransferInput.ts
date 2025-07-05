@@ -42,12 +42,12 @@ export async function generateZkTransferInput(transfer: ZkTransferMeta) {
         throw Error('verify failed');
     }
 
-    // const proof = ZkryptoCircuits.structure.proof.fromLibrary(rawProof);
+    const proof = ZkryptoCircuits.structure.proof.fromLibrary(rawProof); 
 
-    // consoleDebug("generateZkTransferInput .. : proof = \n", toJson(proof, 2))
+    consoleDebug("generateZkTransferInput .. : proof = \n", toJson(proof, 2))
 
     // blockchain
-    // return snarkInput.toContractArgs(proof);
+    return snarkInput.toContractArgs(proof);
 }
 
 
